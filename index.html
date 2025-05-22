@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Student Attendance Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #b22222; /* Firebrick red */
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white p-6">
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold text-center">SDCKL Student Attendance Management System</h1>
+  </header>
+  <main>
+    <section class="overflow-x-auto">
+      <table class="min-w-full bg-red-800 rounded-lg shadow-lg">
+        <thead>
+          <tr class="text-left text-white border-b border-red-600">
+            <th class="px-4 py-2">Student ID</th>
+            <th class="px-4 py-2">Name</th>
+            <th class="px-4 py-2">Attendance</th>
+            <th class="px-4 py-2">Remarks</th>
+          </tr>
+        </thead>
+        <tbody id="student-table-body" class="divide-y divide-red-700">
+          <!-- Student rows will be dynamically inserted here -->
+        </tbody>
+      </table>
+    </section>
+    <div class="mt-6 flex justify-center space-x-4">
+      <button id="save-btn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded shadow transition">Save Attendance</button>
+      <button id="clear-btn" class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded shadow transition">Clear</button>
+    </div>
+    <section id="message" class="mt-4 text-center text-yellow-200"></section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
