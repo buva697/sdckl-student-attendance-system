@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Student Attendance Management</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Modal backdrop */
+    .modal-backdrop {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-blue-700 text-white flex flex-col">
+    <div class="p-6 flex items-center space-x-3 border-b border-blue-600">
+      <i class="fas fa-user-graduate fa-lg"></i>
+      <span class="text-xl font-semibold">SDCKL Attend</span>
+    </div>
+    <nav class="flex-1 px-4 py-6 space-y-2">
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-blue-800 transition">
+        <i class="fas fa-chart-bar mr-3"></i> Dashboard
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-blue-800 transition">
+        <i class="fas fa-user mr-3"></i> Students
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md hover:bg-blue-800 transition">
+        <i class="fas fa-graduation-cap mr-3"></i> Classes
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md bg-blue-800 transition" aria-current="page">
+        <i class="fas fa-clipboard-check mr-3"></i> Attendance
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md cursor-not-allowed opacity-50 transition" title="Coming soon" tabindex="0" aria-disabled="true">
+        <i class="fas fa-calendar-alt mr-3"></i> Calendar
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md cursor-not-allowed opacity-50 transition" title="Coming soon" tabindex="0" aria-disabled="true">
+        <i class="fas fa-file-alt mr-3"></i> Reports
+      </a>
+      <a href="#" class="flex items-center px-3 py-2 rounded-md cursor-not-allowed opacity-50 transition" title="Coming soon" tabindex="0" aria-disabled="true">
+        <i class="fas fa-cog mr-3"></i> Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main content -->
+  <main class="flex-1 p-8 overflow-auto">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Student Attendance</h1>
+      <p class="text-gray-600 mt-1">Manage student attendance with biometric simulation and remarks.</p>
+    </header>
+
+    <!-- Toolbar -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
+      <div class="flex items-center space-x-4">
+        <button id="openBiometricBtn" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition flex items-center space-x-2">
+          <i class="fas fa-fingerprint"></i>
+          <span>Scan Biometric</span>
+        </button>
+        <button id="exportCsvBtn" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition flex items-center space-x-2">
+          <i class="fas fa-file-csv"></i>
+          <span>Export CSV</span>
+        </button>
+        <button id="logoutBtn" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+      <input type="text" id="searchInput" placeholder="Search students..." class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+    </div>
+
+    <!-- Add Student Form -->
+    <form id="addStudentForm" class="mb-6 flex space-x-3 max-w-md">
+      <input type="text" id="newStudentName" placeholder="Enter new student name" required
+        class="flex-grow border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">Add Student</button>
+    </form>
+
+    <!-- Student Attendance Table -->
+    <div class="overflow-x-auto bg-white rounded-lg shadow">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-100">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Eligibility</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody" class="divide-y divide-gray-200">
+          <!-- Student rows will be dynamically inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Biometric Scan Modal -->
+  <div id="biometricModal" class="fixed inset-0 hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="biometricModalTitle">
+    <div class="modal-backdrop absolute inset-0"></div>
+    <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-6 relative z-10">
+      <h2 id="biometricModalTitle" class="text-xl font-semibold mb-4 flex items-center space-x-2">
+        <i class="fas fa-fingerprint text-blue-600"></i>
+        <span>Biometric Scan</span>
+      </h2>
+      <p class="mb-4 text-gray-700">Click "Scan" to mark the student as present.</p>
+      <div class="max-h-64 overflow-y-auto border border-gray-200 rounded-md">
+        <ul id="biometricStudentList" class="divide-y divide-gray-200">
+          <!-- Biometric scan student list will be dynamically inserted here -->
+        </ul>
+      </div>
+      <div class="mt-6 flex justify-end space-x-3">
+        <button id="closeBiometricBtn" class="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400 transition">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // API base URL
+    const API_BASE_URL = 'http://localhost:3001';
+
+    // Student data fetched from backend
+    let students = [];
+
+    // Load student data from backend
+    async function loadStudents() {
+      try {
+        const response = await fetch(\`\${API_BASE_URL}/students\`);
+        if (!response.ok) throw new Error('Failed to fetch students');
+        students = await response.json();
+        renderStudentTable(document.getElementById('searchInput').value);
+        renderBiometricStudentList();
+      } catch (error) {
+        alert('Error loading students: ' + error.message);
+      }
+    }
+
+    // Load saved attendance and remarks from localStorage (fallback)
+    function loadSavedData() {
+      const savedData = localStorage.getItem('sdcklAttendanceData');
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        parsedData.forEach(savedStudent => {
+          const student = students.find(s => s.id === savedStudent.id);
+          if (student) {
+            student.attendanceStatus = savedStudent.attendanceStatus;
+            student.remarks = savedStudent.remarks;
+          }
+        });
+      }
+    }
+
+    // Calculate eligibility based on attendance status
+    function calculateEligibility(student) {
+      // For demo, consider Present and Late as eligible attendance
+      if (student.attendanceStatus === 'Present' || student.attendanceStatus === 'Late') {
+        return true;
+      }
+      return false;
+    }
+
+    // Add student form handler
+    const addStudentForm = document.getElementById('addStudentForm');
+    addStudentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newStudentNameInput = document.getElementById('newStudentName');
+      const newName = newStudentNameInput.value.trim();
+      if (newName === '') {
+        alert('Please enter a valid student name.');
+        return;
+      }
+      try {
+        const response = await fetch(\`\${API_BASE_URL}/students\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newName })
+        });
+        if (response.status === 409) {
+          alert('Student with this name already exists.');
+          return;
+        }
+        if (!response.ok) throw new Error('Failed to add student');
+        const newStudent = await response.json();
+        students.push(newStudent);
+        renderStudentTable(document.getElementById('searchInput').value);
+        renderBiometricStudentList();
+        newStudentNameInput.value = '';
+      } catch (error) {
+        alert('Error adding student: ' + error.message);
+      }
+    });
+
+    // Save attendance and remarks to localStorage (fallback)
+    function saveData() {
+      localStorage.setItem('sdcklAttendanceData', JSON.stringify(students));
+    }
+
+    // Render student table rows
+    function renderStudentTable(filter = '') {
+      const tbody = document.getElementById('studentTableBody');
+      tbody.innerHTML = '';
+      const filteredStudents = students.filter(s => s.name.toLowerCase().includes(filter.toLowerCase()));
+      filteredStudents.forEach(student => {
+        const tr = document.createElement('tr');
+
+        // Student name cell
+        const nameTd = document.createElement('td');
+        nameTd.className = 'px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900';
+        nameTd.textContent = student.name;
+        tr.appendChild(nameTd);
+
+        // Attendance status cell with colored badge
+        const attendanceTd = document.createElement('td');
+        attendanceTd.className = 'px-6 py-4 whitespace-nowrap text-sm';
+        const badge = document.createElement('span');
+        badge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+        switch (student.attendanceStatus) {
+          case 'Present':
+            badge.classList.add('bg-green-100', 'text-green-800');
+            badge.textContent = 'Present';
+            break;
+          case 'Late':
+            badge.classList.add('bg-yellow-100', 'text-yellow-800');
+            badge.textContent = 'Late';
+            break;
+          case 'Absent':
+          default:
+            badge.classList.add('bg-red-100', 'text-red-800');
+            badge.textContent = 'Absent';
+            break;
+        }
+        attendanceTd.appendChild(badge);
+        tr.appendChild(attendanceTd);
+
+        // Remarks cell with editable input
+        const remarksTd = document.createElement('td');
+        remarksTd.className = 'px-6 py-4 whitespace-nowrap text-sm';
+        const remarksInput = document.createElement('input');
+        remarksInput.type = 'text';
+        remarksInput.value = student.remarks;
+        remarksInput.placeholder = 'Add remarks...';
+        remarksInput.className = 'w-full border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500';
+        remarksInput.addEventListener('input', (e) => {
+          student.remarks = e.target.value;
+          saveData();
+        });
+        remarksTd.appendChild(remarksInput);
+        tr.appendChild(remarksTd);
+
+        // Eligibility cell
+        const eligibilityTd = document.createElement('td');
+        eligibilityTd.className = 'px-6 py-4 whitespace-nowrap text-sm';
+        const eligibilityBadge = document.createElement('span');
+        eligibilityBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+        if (calculateEligibility(student)) {
+          eligibilityBadge.classList.add('bg-green-100', 'text-green-800');
+          eligibilityBadge.textContent = 'Eligible';
+        } else {
+          eligibilityBadge.classList.add('bg-red-100', 'text-red-800');
+          eligibilityBadge.textContent = 'Not Eligible';
+        }
+        eligibilityTd.appendChild(eligibilityBadge);
+        tr.appendChild(eligibilityTd);
+
+        // Actions cell with Edit and Delete buttons
+        const actionsTd = document.createElement('td');
+        actionsTd.className = 'px-6 py-4 whitespace-nowrap text-sm flex space-x-2';
+
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.className = 'px-3 py-1 bg-yellow-400 text-white rounded-md hover:bg-yellow-500 transition';
+        editBtn.textContent = 'Edit';
+        editBtn.addEventListener('click', () => {
+          const newName = prompt('Edit student name:', student.name);
+          if (newName && newName.trim() !== '') {
+            // Check for duplicate names (case insensitive)
+            const duplicate = students.some(s => s.name.toLowerCase() === newName.toLowerCase() && s.id !== student.id);
+            if (duplicate) {
+              alert('Student with this name already exists.');
+              return;
+            }
+            student.name = newName.trim();
+            saveData();
+            renderStudentTable(document.getElementById('searchInput').value);
+            renderBiometricStudentList();
+          }
+        });
+        actionsTd.appendChild(editBtn);
+
+        // Delete button
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.addEventListener('click', () => {
+          if (confirm(`Are you sure you want to delete ${student.name}?`)) {
+            const index = students.findIndex(s => s.id === student.id);
+            if (index !== -1) {
+              students.splice(index, 1);
+              saveData();
+              renderStudentTable(document.getElementById('searchInput').value);
+              renderBiometricStudentList();
+            }
+          }
+        });
+        actionsTd.appendChild(deleteBtn);
+
+        tr.appendChild(actionsTd);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Render biometric scan modal student list
+    function renderBiometricStudentList() {
+      const list = document.getElementById('biometricStudentList');
+      list.innerHTML = '';
+      students.forEach(student => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between px-4 py-2';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = student.name;
+        li.appendChild(nameSpan);
+
+        // Create Present button
+        const presentBtn = document.createElement('button');
+        presentBtn.textContent = 'Present';
+        presentBtn.className = 'px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition mr-2';
+        presentBtn.disabled = student.attendanceStatus === 'Present';
+        presentBtn.title = student.attendanceStatus === 'Present' ? 'Already marked present' : 'Mark as present';
+        presentBtn.addEventListener('click', () => {
+          student.attendanceStatus = 'Present';
+          // Clear remarks if previously late
+          if (student.remarks.toLowerCase() === 'late arrival') {
+            student.remarks = '';
+          }
+          saveData();
+          renderStudentTable(document.getElementById('searchInput').value);
+          renderBiometricStudentList();
+        });
+        li.appendChild(presentBtn);
+
+        // Create Late button
+        const lateBtn = document.createElement('button');
+        lateBtn.textContent = 'Late';
+        lateBtn.className = 'px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition';
+        lateBtn.disabled = student.attendanceStatus === 'Late';
+        lateBtn.title = student.attendanceStatus === 'Late' ? 'Already marked late' : 'Mark as late';
+        lateBtn.addEventListener('click', () => {
+          student.attendanceStatus = 'Late';
+          // Add remark if empty or not already "Late arrival"
+          if (!student.remarks || student.remarks.toLowerCase() !== 'late arrival') {
+            student.remarks = 'Late arrival';
+          }
+          saveData();
+          renderStudentTable(document.getElementById('searchInput').value);
+          renderBiometricStudentList();
+        });
+        li.appendChild(lateBtn);
+
+        list.appendChild(li);
+      });
+    }
+
+    // Modal open/close handlers
+    const biometricModal = document.getElementById('biometricModal');
+    const openBiometricBtn = document.getElementById('openBiometricBtn');
+    const closeBiometricBtn = document.getElementById('closeBiometricBtn');
+
+    openBiometricBtn.addEventListener('click', () => {
+      // Check for WebAuthn support
+      if (window.PublicKeyCredential) {
+        performWebAuthn();
+      } else {
+        // Fallback to modal simulation
+        biometricModal.classList.remove('hidden');
+        biometricModal.classList.add('flex');
+        renderBiometricStudentList();
+      }
+    });
+
+    closeBiometricBtn.addEventListener('click', () => {
+      biometricModal.classList.add('hidden');
+      biometricModal.classList.remove('flex');
+    });
+
+    // WebAuthn biometric authentication function
+    async function performWebAuthn() {
+      try {
+        // Create a dummy challenge for demo purposes
+        const challenge = new Uint8Array(32);
+        window.crypto.getRandomValues(challenge);
+
+        const publicKey = {
+          challenge: challenge,
+          timeout: 60000,
+          userVerification: 'preferred',
+          allowCredentials: [] // For demo, allow any credential
+        };
+
+        const credential = await navigator.credentials.get({ publicKey });
+
+        if (credential) {
+          // For demo, mark the first student as present upon successful biometric auth
+          students[0].attendanceStatus = 'Present';
+          students[0].remarks = '';
+          saveData();
+          renderStudentTable(document.getElementById('searchInput').value);
+          alert('Biometric authentication successful. Attendance marked for ' + students[0].name);
+        } else {
+          alert('Biometric authentication failed or was cancelled.');
+        }
+      } catch (error) {
+        alert('Biometric authentication error: ' + error.message);
+      }
+    }
+
+    // Export attendance data as CSV
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    exportCsvBtn.addEventListener('click', () => {
+      const headers = ['Student', 'Attendance', 'Remarks', 'Eligibility'];
+      const rows = students.map(student => [
+        student.name,
+        student.attendanceStatus,
+        student.remarks,
+        calculateEligibility(student) ? 'Eligible' : 'Not Eligible'
+      ]);
+
+      let csvContent = 'data:text/csv;charset=utf-8,';
+      csvContent += headers.join(',') + '\n';
+      rows.forEach(row => {
+        csvContent += row.map(field => `"${field.replace(/"/g, '""')}"`).join(',') + '\n';
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', 'sdckl_attendance_report.csv');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    // Search input handler
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+      renderStudentTable(e.target.value);
+    });
+
+    // Logout button handler
+    const logoutBtn = document.getElementById('logoutBtn');
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('sdcklLoggedIn');
+      window.location.href = 'login.html';
+    });
+
+    // Initial load
+    loadStudents();
+  </script>
+</body>
+</html>
