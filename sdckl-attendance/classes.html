@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Attendance - Classes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Top Navigation -->
+  <header class="bg-teal-600 text-white shadow-md">
+    <div class="container mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-user-graduate fa-lg"></i>
+        <span class="text-2xl font-semibold tracking-wide">SDCKL Attendance</span>
+      </div>
+      <nav class="space-x-6 hidden md:flex">
+        <a href="dashboard.html" class="hover:text-teal-300 transition font-medium">Dashboard</a>
+        <a href="students.html" class="hover:text-teal-300 transition font-medium">Students</a>
+        <a href="classes.html" class="hover:text-teal-300 transition font-medium">Classes</a>
+        <a href="attendance.html" class="hover:text-teal-300 transition font-medium">Attendance</a>
+        <a href="reports.html" class="hover:text-teal-300 transition font-medium">Reports</a>
+        <a href="#" class="cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+      </nav>
+      <button id="mobileMenuBtn" class="md:hidden focus:outline-none" aria-label="Open menu">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <nav id="mobileMenu" class="hidden bg-teal-700 text-white px-6 py-4 space-y-3 md:hidden">
+      <a href="dashboard.html" class="block hover:text-teal-300 transition font-medium">Dashboard</a>
+      <a href="students.html" class="block hover:text-teal-300 transition font-medium">Students</a>
+      <a href="classes.html" class="block hover:text-teal-300 transition font-medium">Classes</a>
+      <a href="attendance.html" class="block hover:text-teal-300 transition font-medium">Attendance</a>
+      <a href="reports.html" class="block hover:text-teal-300 transition font-medium">Reports</a>
+      <a href="#" class="block cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-6 py-8">
+    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+      <h1 class="text-4xl font-extrabold text-gray-900">Classes</h1>
+      <button id="addClassBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition shadow-md focus:outline-none focus:ring-2 focus:ring-green-400 font-semibold">
+        <i class="fas fa-plus mr-2"></i> Add Class
+      </button>
+    </header>
+
+    <input type="text" id="searchInput" placeholder="Search classes..." aria-label="Search classes" class="mb-6 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 w-full max-w-md" />
+
+    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-teal-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold">ID</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Description</th>
+            <th class="px-6 py-3 text-center text-sm font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="classesTableBody" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+
+    <!-- Add/Edit Class Modal -->
+    <div id="classModal" class="fixed inset-0 hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="classModalTitle" tabindex="-1">
+      <div class="modal-backdrop absolute inset-0 bg-black opacity-50"></div>
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-8 relative z-10">
+        <h2 id="classModalTitle" class="text-2xl font-bold mb-6 text-teal-600">Add Class</h2>
+        <form id="classForm" class="space-y-6">
+          <div>
+            <label for="className" class="block text-gray-700 font-semibold mb-2">Name</label>
+            <input type="text" id="className" name="className" required aria-required="true" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400" />
+          </div>
+          <div>
+            <label for="classDescription" class="block text-gray-700 font-semibold mb-2">Description</label>
+            <textarea id="classDescription" name="classDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400"></textarea>
+          </div>
+          <div class="flex justify-end space-x-4">
+            <button type="button" id="cancelClassBtn" class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition focus:outline-none focus:ring-2 focus:ring-gray-400">Cancel</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-400 font-semibold">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE_URL = "http://localhost:3001/api";
+
+    let classes = [];
+    let editingClassId = null;
+
+    const classesTableBody = document.getElementById("classesTableBody");
+    const searchInput = document.getElementById("searchInput");
+    const addClassBtn = document.getElementById("addClassBtn");
+    const classModal = document.getElementById("classModal");
+    const classModalTitle = document.getElementById("classModalTitle");
+    const classForm = document.getElementById("classForm");
+    const classNameInput = document.getElementById("className");
+    const classDescriptionInput = document.getElementById("classDescription");
+    const cancelClassBtn = document.getElementById("cancelClassBtn");
+
+    function renderClasses(filter = "") {
+      classesTableBody.innerHTML = "";
+      const filteredClasses = classes.filter((c) =>
+        c.name.toLowerCase().includes(filter.toLowerCase())
+      );
+      filteredClasses.forEach((cls) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-100";
+
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cls.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cls.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${cls.description || ""}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+            <button data-id="${cls.id}" class="editBtn bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-300">Edit</button>
+            <button data-id="${cls.id}" class="deleteBtn bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400">Delete</button>
+          </td>
+        `;
+        classesTableBody.appendChild(tr);
+      });
+    }
+
+    async function fetchClasses() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/classes`, {
+          headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+        });
+        if (!response.ok) throw new Error("Failed to fetch classes");
+        classes = await response.json();
+        renderClasses(searchInput.value);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function openClassModal(edit = false, cls = null) {
+      classModalTitle.textContent = edit ? "Edit Class" : "Add Class";
+      if (edit && cls) {
+        classNameInput.value = cls.name;
+        classDescriptionInput.value = cls.description || "";
+        editingClassId = cls.id;
+      } else {
+        classForm.reset();
+        editingClassId = null;
+      }
+      classModal.classList.remove("hidden");
+      classModal.classList.add("flex");
+      classModal.focus();
+    }
+
+    function closeClassModal() {
+      classModal.classList.add("hidden");
+      classModal.classList.remove("flex");
+      editingClassId = null;
+    }
+
+    addClassBtn.addEventListener("click", () => openClassModal());
+
+    cancelClassBtn.addEventListener("click", () => closeClassModal());
+
+    classForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = classNameInput.value.trim();
+      const description = classDescriptionInput.value.trim();
+
+      if (!name) {
+        alert("Class name is required.");
+        return;
+      }
+
+      try {
+        let response;
+        if (editingClassId) {
+          response = await fetch(`${API_BASE_URL}/classes/${editingClassId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + sessionStorage.getItem("sdcklToken"),
+            },
+            body: JSON.stringify({ name, description }),
+          });
+        } else {
+          response = await fetch(`${API_BASE_URL}/classes`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + sessionStorage.getItem("sdcklToken"),
+            },
+            body: JSON.stringify({ name, description }),
+          });
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to save class");
+        }
+
+        await fetchClasses();
+        closeClassModal();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    classesTableBody.addEventListener("click", async (e) => {
+      if (e.target.classList.contains("editBtn")) {
+        const classId = parseInt(e.target.getAttribute("data-id"));
+        const cls = classes.find((c) => c.id === classId);
+        if (cls) {
+          openClassModal(true, cls);
+        }
+      } else if (e.target.classList.contains("deleteBtn")) {
+        const classId = parseInt(e.target.getAttribute("data-id"));
+        if (confirm("Are you sure you want to delete this class?")) {
+          try {
+            const response = await fetch(`${API_BASE_URL}/classes/${classId}`, {
+              method: "DELETE",
+              headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+            });
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to delete class");
+            }
+            await fetchClasses();
+          } catch (error) {
+            alert(error.message);
+          }
+        }
+      }
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      renderClasses(e.target.value);
+    });
+
+    // Redirect to login if not authenticated
+    if (!sessionStorage.getItem("sdcklToken")) {
+      window.location.href = "login.html";
+    } else {
+      fetchClasses();
+    }
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    mobileMenuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>
