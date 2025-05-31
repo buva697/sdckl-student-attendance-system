@@ -1,0 +1,9 @@
+{
+  "students": [
+    { "id": 1, "name": "Ahmad bin Abdullah", "attendanceStatus": "Absent", "remarks": "" },
+    { "id": 2, "name": "Siti Aminah", "attendanceStatus": "Absent", "remarks": "" },
+    { "id": 3, "name": "Raj Kumar", "attendanceStatus": "Absent", "remarks": "" },
+    { "id": 4, "name": "Maria Lopez", "attendanceStatus": "Absent", "remarks": "" },
+    { "id": 5, "name": "John Smith", "attendanceStatus": "Absent", "remarks": "" }
+  ]
+}
