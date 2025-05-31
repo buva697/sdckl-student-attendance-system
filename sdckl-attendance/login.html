@@ -1,93 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SDCKL Attendance Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <title>SDCKL Attendance - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f9fafb;
+      font-family: 'Poppins', sans-serif;
+      background: url('https://images.pexels.com/photos/4145190/pexels-photo-4145190.jpeg') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      position: fixed;
+      inset: 0;
+      z-index: 0;
     }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-    <h1 class="text-2xl font-semibold mb-6 text-center text-gray-900">SDCKL Attendance Login</h1>
-    <form id="loginForm" class="space-y-6" novalidate>
+<body class="min-h-screen flex items-center justify-center relative">
+  <div class="overlay"></div>
+  <main class="bg-white rounded-xl shadow-lg p-10 max-w-md w-full z-10">
+    <h1 class="text-3xl font-extrabold text-teal-600 mb-6 text-center">SDCKL Attendance Login</h1>
+    <form id="loginForm" class="space-y-6" aria-label="Login form">
       <div>
-        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-        <input type="text" id="username" name="username" required
-          class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <p id="usernameError" class="text-red-600 text-sm mt-1 hidden">Please enter your username.</p>
+        <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
+        <input type="text" id="username" name="username" required aria-required="true" autocomplete="username"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400" />
       </div>
       <div>
-        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-        <input type="password" id="password" name="password" required
-          class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <p id="passwordError" class="text-red-600 text-sm mt-1 hidden">Please enter your password.</p>
+        <label for="password" class="block text-gray-700 font-semibold mb-2">Password</label>
+        <input type="password" id="password" name="password" required aria-required="true" autocomplete="current-password"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400" />
       </div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition flex items-center justify-center space-x-2">
-        <i class="fas fa-sign-in-alt"></i>
-        <span>Login</span>
+      <button type="submit" class="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-700 transition focus:outline-none focus:ring-2 focus:ring-teal-400">
+        <i class="fas fa-sign-in-alt mr-2"></i> Login
       </button>
     </form>
-    <p id="errorMsg" class="mt-4 text-red-600 text-sm hidden">Invalid username or password.</p>
-  </div>
+    <div id="errorContainer" class="mt-4 text-red-600 font-semibold hidden" role="alert" aria-live="assertive"></div>
+  </main>
 
   <script>
     const loginForm = document.getElementById('loginForm');
-    const errorMsg = document.getElementById('errorMsg');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const usernameError = document.getElementById('usernameError');
-    const passwordError = document.getElementById('passwordError');
+    const errorContainer = document.getElementById('errorContainer');
 
-    // Hardcoded credentials for demo
-    const validUsername = 'admin';
-    const validPassword = 'password123';
-
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      let valid = true;
+      errorContainer.classList.add('hidden');
+      const username = loginForm.username.value.trim();
+      const password = loginForm.password.value;
 
-      if (usernameInput.value.trim() === '') {
-        usernameError.classList.remove('hidden');
-        valid = false;
-      } else {
-        usernameError.classList.add('hidden');
-      }
-
-      if (passwordInput.value === '') {
-        passwordError.classList.remove('hidden');
-        valid = false;
-      } else {
-        passwordError.classList.add('hidden');
-      }
-
-      if (!valid) {
+      if (!username || !password) {
+        errorContainer.textContent = 'Please enter both username and password.';
+        errorContainer.classList.remove('hidden');
         return;
       }
 
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value;
-
-      if (username === validUsername && password === validPassword) {
-        // Save login state in sessionStorage
-        sessionStorage.setItem('sdcklLoggedIn', 'true');
-        window.location.href = 'index.html';
-      } else {
-        errorMsg.classList.remove('hidden');
+      try {
+        const response = await fetch('http://localhost:3001/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Login failed');
+        }
+        const data = await response.json();
+        // Save token and user info in sessionStorage
+        sessionStorage.setItem('sdcklToken', data.token);
+        sessionStorage.setItem('sdcklUser', JSON.stringify(data.user));
+        // Redirect to dashboard
+        window.location.href = 'dashboard.html';
+      } catch (error) {
+        errorContainer.textContent = error.message;
+        errorContainer.classList.remove('hidden');
       }
     });
-
-    // Redirect to index if already logged in
-    if (sessionStorage.getItem('sdcklLoggedIn') === 'true') {
-      window.location.href = 'index.html';
-    }
   </script>
 </body>
 </html>
