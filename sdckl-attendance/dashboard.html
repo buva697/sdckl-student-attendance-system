@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Attendance - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Top Navigation -->
+  <header class="bg-teal-600 text-white shadow-md">
+    <div class="container mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-user-graduate fa-lg"></i>
+        <span class="text-2xl font-semibold tracking-wide">SDCKL Attendance</span>
+      </div>
+      <nav class="space-x-6 hidden md:flex">
+        <a href="dashboard.html" class="hover:text-teal-300 transition font-medium">Dashboard</a>
+        <a href="students.html" class="hover:text-teal-300 transition font-medium">Students</a>
+        <a href="classes.html" class="hover:text-teal-300 transition font-medium">Classes</a>
+        <a href="attendance.html" class="hover:text-teal-300 transition font-medium">Attendance</a>
+        <a href="reports.html" class="hover:text-teal-300 transition font-medium">Reports</a>
+        <a href="#" class="cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+      </nav>
+      <button id="mobileMenuBtn" class="md:hidden focus:outline-none" aria-label="Open menu">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <nav id="mobileMenu" class="hidden bg-teal-700 text-white px-6 py-4 space-y-3 md:hidden">
+      <a href="dashboard.html" class="block hover:text-teal-300 transition font-medium">Dashboard</a>
+      <a href="students.html" class="block hover:text-teal-300 transition font-medium">Students</a>
+      <a href="classes.html" class="block hover:text-teal-300 transition font-medium">Classes</a>
+      <a href="attendance.html" class="block hover:text-teal-300 transition font-medium">Attendance</a>
+      <a href="reports.html" class="block hover:text-teal-300 transition font-medium">Reports</a>
+      <a href="#" class="block cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-6 py-8">
+    <header class="mb-8">
+      <h1 class="text-4xl font-extrabold text-gray-900">Dashboard</h1>
+      <p class="text-gray-600 mt-2 max-w-xl">Overview of student attendance and system status.</p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center">
+        <i class="fas fa-users fa-3x text-teal-600 mb-4"></i>
+        <h2 class="text-2xl font-bold" id="totalStudents">0</h2>
+        <p class="text-gray-600">Total Students</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center">
+        <i class="fas fa-calendar-check fa-3x text-green-600 mb-4"></i>
+        <h2 class="text-2xl font-bold" id="attendanceToday">0</h2>
+        <p class="text-gray-600">Attendance Today</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-md p-6 flex flex-col items-center">
+        <i class="fas fa-chalkboard-teacher fa-3x text-purple-600 mb-4"></i>
+        <h2 class="text-2xl font-bold" id="totalClasses">0</h2>
+        <p class="text-gray-600">Total Classes</p>
+      </div>
+    </div>
+  </main>
+
+    <script>
+    const API_BASE_URL = "http://localhost:3001/api";
+
+    async function fetchDashboardData() {
+      try {
+        // Fetch total students
+        const studentsRes = await fetch(`${API_BASE_URL}/students`, {
+          headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+        });
+        const students = await studentsRes.json();
+        document.getElementById("totalStudents").textContent = students.length;
+
+        // Fetch attendance today count
+        const today = new Date().toISOString().slice(0, 10);
+        const attendanceRes = await fetch(
+          `${API_BASE_URL}/attendance?dateFrom=${today}&dateTo=${today}`,
+          {
+            headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+          }
+        );
+        const attendanceRecords = await attendanceRes.json();
+        const presentCount = attendanceRecords.filter(
+          (r) => r.attendance_status === "Present"
+        ).length;
+        document.getElementById("attendanceToday").textContent = presentCount;
+
+        // Fetch total classes
+        const classesRes = await fetch(`${API_BASE_URL}/classes`, {
+          headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+        });
+        const classes = await classesRes.json();
+        document.getElementById("totalClasses").textContent = classes.length;
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    }
+
+    // Redirect to login if not authenticated
+    if (!sessionStorage.getItem("sdcklToken")) {
+      window.location.href = "login.html";
+    } else {
+      fetchDashboardData();
+    }
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    mobileMenuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>
