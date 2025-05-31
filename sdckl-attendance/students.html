@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Attendance - Students</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Top Navigation -->
+  <header class="bg-teal-600 text-white shadow-md">
+    <div class="container mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-user-graduate fa-lg"></i>
+        <span class="text-2xl font-semibold tracking-wide">SDCKL Attendance</span>
+      </div>
+      <nav class="space-x-6 hidden md:flex">
+        <a href="dashboard.html" class="hover:text-teal-300 transition font-medium">Dashboard</a>
+        <a href="students.html" class="hover:text-teal-300 transition font-medium">Students</a>
+        <a href="classes.html" class="hover:text-teal-300 transition font-medium">Classes</a>
+        <a href="attendance.html" class="hover:text-teal-300 transition font-medium">Attendance</a>
+        <a href="reports.html" class="hover:text-teal-300 transition font-medium">Reports</a>
+        <a href="#" class="cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+      </nav>
+      <button id="mobileMenuBtn" class="md:hidden focus:outline-none" aria-label="Open menu">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <nav id="mobileMenu" class="hidden bg-teal-700 text-white px-6 py-4 space-y-3 md:hidden">
+      <a href="dashboard.html" class="block hover:text-teal-300 transition font-medium">Dashboard</a>
+      <a href="students.html" class="block hover:text-teal-300 transition font-medium">Students</a>
+      <a href="classes.html" class="block hover:text-teal-300 transition font-medium">Classes</a>
+      <a href="attendance.html" class="block hover:text-teal-300 transition font-medium">Attendance</a>
+      <a href="reports.html" class="block hover:text-teal-300 transition font-medium">Reports</a>
+      <a href="#" class="block cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-6 py-8">
+    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+      <h1 class="text-4xl font-extrabold text-gray-900">Students</h1>
+      <button id="addStudentBtn" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition shadow-md focus:outline-none focus:ring-2 focus:ring-green-400 font-semibold">
+        <i class="fas fa-plus mr-2"></i> Add Student
+      </button>
+    </header>
+
+    <input type="text" id="searchInput" placeholder="Search students..." aria-label="Search students" class="mb-6 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400 w-full max-w-md" />
+
+    <div class="overflow-x-auto bg-white rounded-xl shadow-md">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-teal-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold">ID</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Remarks</th>
+            <th class="px-6 py-3 text-center text-sm font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTableBody" class="divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div id="studentModal" class="fixed inset-0 hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="studentModalTitle" tabindex="-1">
+      <div class="modal-backdrop absolute inset-0 bg-black opacity-50"></div>
+      <div class="bg-white rounded-xl shadow-xl max-w-md w-full p-8 relative z-10">
+        <h2 id="studentModalTitle" class="text-2xl font-bold mb-6 text-teal-600">Add Student</h2>
+        <form id="studentForm" class="space-y-6">
+          <div>
+            <label for="studentName" class="block text-gray-700 font-semibold mb-2">Name</label>
+            <input type="text" id="studentName" name="studentName" required aria-required="true" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400" />
+          </div>
+          <div>
+            <label for="studentRemarks" class="block text-gray-700 font-semibold mb-2">Remarks</label>
+            <textarea id="studentRemarks" name="studentRemarks" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400"></textarea>
+          </div>
+          <div class="flex justify-end space-x-4">
+            <button type="button" id="cancelStudentBtn" class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 transition focus:outline-none focus:ring-2 focus:ring-gray-400">Cancel</button>
+            <button type="submit" class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition focus:outline-none focus:ring-2 focus:ring-green-400 font-semibold">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const API_BASE_URL = "http://localhost:3001/api";
+
+    let students = [];
+    let editingStudentId = null;
+
+    const studentsTableBody = document.getElementById("studentsTableBody");
+    const searchInput = document.getElementById("searchInput");
+    const addStudentBtn = document.getElementById("addStudentBtn");
+    const studentModal = document.getElementById("studentModal");
+    const studentModalTitle = document.getElementById("studentModalTitle");
+    const studentForm = document.getElementById("studentForm");
+    const studentNameInput = document.getElementById("studentName");
+    const studentRemarksInput = document.getElementById("studentRemarks");
+    const cancelStudentBtn = document.getElementById("cancelStudentBtn");
+
+    function renderStudents(filter = "") {
+      studentsTableBody.innerHTML = "";
+      const filteredStudents = students.filter((s) =>
+        s.name.toLowerCase().includes(filter.toLowerCase())
+      );
+      filteredStudents.forEach((student) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-gray-100";
+
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.name}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.remarks || ""}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center space-x-2">
+            <button data-id="${student.id}" class="editBtn bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-300">Edit</button>
+            <button data-id="${student.id}" class="deleteBtn bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400">Delete</button>
+          </td>
+        `;
+        studentsTableBody.appendChild(tr);
+      });
+    }
+
+    async function fetchStudents() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/students`, {
+          headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+        });
+        if (!response.ok) throw new Error("Failed to fetch students");
+        students = await response.json();
+        renderStudents(searchInput.value);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function openStudentModal(edit = false, student = null) {
+      studentModalTitle.textContent = edit ? "Edit Student" : "Add Student";
+      if (edit && student) {
+        studentNameInput.value = student.name;
+        studentRemarksInput.value = student.remarks || "";
+        editingStudentId = student.id;
+      } else {
+        studentForm.reset();
+        editingStudentId = null;
+      }
+      studentModal.classList.remove("hidden");
+      studentModal.classList.add("flex");
+      studentModal.focus();
+    }
+
+    function closeStudentModal() {
+      studentModal.classList.add("hidden");
+      studentModal.classList.remove("flex");
+      editingStudentId = null;
+    }
+
+    addStudentBtn.addEventListener("click", () => openStudentModal());
+
+    cancelStudentBtn.addEventListener("click", () => closeStudentModal());
+
+    studentForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = studentNameInput.value.trim();
+      const remarks = studentRemarksInput.value.trim();
+
+      if (!name) {
+        alert("Student name is required.");
+        return;
+      }
+
+      try {
+        let response;
+        if (editingStudentId) {
+          response = await fetch(`${API_BASE_URL}/students/${editingStudentId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + sessionStorage.getItem("sdcklToken"),
+            },
+            body: JSON.stringify({ name, remarks }),
+          });
+        } else {
+          response = await fetch(`${API_BASE_URL}/students`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + sessionStorage.getItem("sdcklToken"),
+            },
+            body: JSON.stringify({ name, remarks }),
+          });
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to save student");
+        }
+
+        await fetchStudents();
+        closeStudentModal();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+
+    studentsTableBody.addEventListener("click", async (e) => {
+      if (e.target.classList.contains("editBtn")) {
+        const studentId = parseInt(e.target.getAttribute("data-id"));
+        const student = students.find((s) => s.id === studentId);
+        if (student) {
+          openStudentModal(true, student);
+        }
+      } else if (e.target.classList.contains("deleteBtn")) {
+        const studentId = parseInt(e.target.getAttribute("data-id"));
+        if (confirm("Are you sure you want to delete this student?")) {
+          try {
+            const response = await fetch(`${API_BASE_URL}/students/${studentId}`, {
+              method: "DELETE",
+              headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+            });
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to delete student");
+            }
+            await fetchStudents();
+          } catch (error) {
+            alert(error.message);
+          }
+        }
+      }
+    });
+
+    searchInput.addEventListener("input", (e) => {
+      renderStudents(e.target.value);
+    });
+
+    // Redirect to login if not authenticated
+    if (!sessionStorage.getItem("sdcklToken")) {
+      window.location.href = "login.html";
+    } else {
+      fetchStudents();
+    }
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    mobileMenuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>
