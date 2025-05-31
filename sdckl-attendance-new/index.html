@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Attendance - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-50">
+  <div class="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">SDCKL Attendance Login</h1>
+    <form id="loginForm" class="space-y-6">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+        <input type="text" id="username" name="username" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" name="password" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-400" />
+      </div>
+      <div>
+        <button type="submit" class="w-full bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700 transition font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400">Login</button>
+      </div>
+      <p id="errorMsg" class="text-red-600 text-sm mt-2 hidden"></p>
+    </form>
+  </div>
+
+  <script>
+    const API_BASE_URL = "http://localhost:3001/api";
+
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorMsg.classList.add('hidden');
+      const username = loginForm.username.value.trim();
+      const password = loginForm.password.value.trim();
+
+      if (!username || !password) {
+        errorMsg.textContent = 'Please enter both username and password.';
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const response = await fetch(API_BASE_URL + "/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || "Login failed");
+        }
+        const data = await response.json();
+        sessionStorage.setItem("sdcklToken", data.token);
+        sessionStorage.setItem("sdcklUserRole", data.role);
+        // Redirect based on role
+        if (data.role === "admin") {
+          window.location.href = "dashboard.html";
+        } else if (data.role === "teacher") {
+          window.location.href = "dashboard.html";
+        } else if (data.role === "student") {
+          window.location.href = "profile.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      } catch (error) {
+        errorMsg.textContent = error.message;
+        errorMsg.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>
