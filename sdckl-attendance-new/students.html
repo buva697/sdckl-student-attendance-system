@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SDCKL Attendance - Students</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f9fafb;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Top Navigation -->
+  <header class="bg-teal-600 text-white shadow-md">
+    <div class="container mx-auto flex items-center justify-between px-6 py-4">
+      <div class="flex items-center space-x-3">
+        <i class="fas fa-user-graduate fa-lg"></i>
+        <span class="text-2xl font-semibold tracking-wide">SDCKL Attendance</span>
+      </div>
+      <nav class="space-x-6 hidden md:flex">
+        <a href="dashboard.html" class="hover:text-teal-300 transition font-medium">Dashboard</a>
+        <a href="students.html" class="hover:text-teal-300 transition font-medium">Students</a>
+        <a href="classes.html" class="hover:text-teal-300 transition font-medium">Classes</a>
+        <a href="attendance.html" class="hover:text-teal-300 transition font-medium">Attendance</a>
+        <a href="reports.html" class="hover:text-teal-300 transition font-medium">Reports</a>
+        <a href="#" class="cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+      </nav>
+      <button id="mobileMenuBtn" class="md:hidden focus:outline-none" aria-label="Open menu">
+        <i class="fas fa-bars fa-lg"></i>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <nav id="mobileMenu" class="hidden bg-teal-700 text-white px-6 py-4 space-y-3 md:hidden">
+      <a href="dashboard.html" class="block hover:text-teal-300 transition font-medium">Dashboard</a>
+      <a href="students.html" class="block hover:text-teal-300 transition font-medium">Students</a>
+      <a href="classes.html" class="block hover:text-teal-300 transition font-medium">Classes</a>
+      <a href="attendance.html" class="block hover:text-teal-300 transition font-medium">Attendance</a>
+      <a href="reports.html" class="block hover:text-teal-300 transition font-medium">Reports</a>
+      <a href="#" class="block cursor-not-allowed opacity-50" title="Coming soon" aria-disabled="true">Settings</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto px-6 py-8">
+    <header class="mb-8">
+      <h1 class="text-4xl font-extrabold text-gray-900">Students</h1>
+      <p class="text-gray-600 mt-2 max-w-xl">Manage student information and enrollment.</p>
+    </header>
+
+    <section>
+      <button id="addStudentBtn" class="mb-4 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition font-semibold">Add New Student</button>
+      <div id="studentsContainer" class="bg-white rounded-xl shadow-md p-6 overflow-auto max-h-[600px]">
+        <!-- Students list will be rendered here -->
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE_URL = "http://localhost:3001/api";
+
+    const studentsContainer = document.getElementById("studentsContainer");
+    const addStudentBtn = document.getElementById("addStudentBtn");
+
+    async function fetchStudents() {
+      try {
+        const response = await fetch(API_BASE_URL + "/students", {
+          headers: { Authorization: "Bearer " + sessionStorage.getItem("sdcklToken") },
+        });
+        if (!response.ok) throw new Error("Failed to fetch students");
+        const students = await response.json();
+        renderStudents(students);
+      } catch (error) {
+        alert(error.message);
+      }
+    }
+
+    function renderStudents(students) {
+      if (students.length === 0) {
+        studentsContainer.innerHTML = "<p>No students found.</p>";
+        return;
+      }
+      let html = '<table class="min-w-full divide-y divide-gray-200">';
+      html += `
+        <thead class="bg-teal-600 text-white">
+          <tr>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
+            <th class="px-6 py-3 text-left text-sm font-semibold">Class</th>
+            <th class="px-6 py-3 text-center text-sm font-semibold">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+      `;
+      students.forEach(student => {
+        html += `
+          <tr>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.name}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.email || ''}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${student.class_name || ''}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
+              <button data-id="${student.id}" class="editBtn bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400">Edit</button>
+              <button data-id="${student.id}" class="deleteBtn bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 ml-2">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+      html += "</tbody></table>";
+      studentsContainer.innerHTML = html;
+
+      document.querySelectorAll(".editBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          alert("Edit functionality for student ID " + id + " coming soon.");
+        });
+      });
+
+      document.querySelectorAll(".deleteBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-id");
+          alert("Delete functionality for student ID " + id + " coming soon.");
+        });
+      });
+    }
+
+    addStudentBtn.addEventListener("click", () => {
+      alert("Add new student functionality coming soon.");
+    });
+
+    fetchStudents();
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+    mobileMenuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+  </script>
+</body>
+</html>
